@@ -4,24 +4,24 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
-            String text = readFile("./src/text.txt");
-            System.out.println(text);
-            String[] linelList = text.split("\n");
+        String text = readFile("./src/text.txt");
+        System.out.println(text);
+        String[] lineList = text.split("\n");
 
-            System.out.println("Введите подстроку для поиска");
+        System.out.println("Введите подстроку для поиска");
 
-            String substring = sc.nextLine();
-            System.out.println(substring);
+        String substring = sc.nextLine();
+        System.out.println(substring);
+       // System.out.println(lineList.length);
+       //System.out.println(Arrays.toString(prefixFunction(substring)));
+       // System.out.println(search(line,substring));
 
-            for (int i = 0; i < linelList.length; i++) {
-                if (linelList[i].contains(substring)) {
-                    System.out.println(linelList[i]);
-                } else {
-                    System.out.println("Такой подстроки нет");
-                    break;
-                }
+        for (int i = 0; i< lineList.length;i++){
+            if (search(lineList[i],substring)) {
+                System.out.println(lineList[i]);
             }
-
+            else System.out.println("Совпадений не найдено");
+        }
     }
 
     private static String readFile(String filename) throws IOException {
@@ -46,31 +46,43 @@ public class Main {
         return sb.toString();
     }
 
-    private static void saveWords(Map<String, Integer> words, String str) {
-        // перебираем строки
-        String[] wordsList = str.split("\\s+");
-        // перебираем слова строки
-        for (String currentWord : wordsList) {
-            // приводим текущее слово в нижний регистр
-            currentWord = currentWord.toLowerCase();
-            // 1 раз это слово встретилось сейчас
-            int count = 1;
-            // если слово уже встречалось (добавлено в мапу)
-            if (words.containsKey(currentWord)) {
-                // то прибавляем кол-во встреч с этим словом к общему кол-ву
-                count += words.get(currentWord);
+    private  static boolean search(String line, String substring){
+        boolean found = false;
+        int[] prefFunc= prefixFunction(substring);
+        int i = 0;
+        int j = 0;
+        while (i<line.length()){
+            if (substring.charAt(j) == line.charAt(i)){
+                j++;
+                i++;
             }
-
-            // сохраняем слово в словарь(если уже встречалось, то обновляем информацию)
-            words.put(currentWord, count);
+            if(j == substring.length()){
+                found = true;
+                j = prefFunc[j-1];
+            }
+            else if (i<line.length() && substring.charAt(j) != line.charAt(i)){
+                if (j != 0){
+                    j = prefFunc[j-1];
+                }
+                else {
+                    i = i + 1;
+                }
+            }
         }
+
+        return found;
     }
 
-    private static void printResult(List<String> list) {
-        for (int i = 0; i < list.size(); i++) {
-            System.out.print(list.get(i) + "\n");
+    static int[] prefixFunction(String substring){
+        int[] values = new int[substring.length()];
+        for (int i=1; i<substring.length();i++){
+            int j=0;
+            while (i + j < substring.length() && substring.charAt(j) == substring.charAt(i + j)) {
+                values[i + j]=Math.max(values[i + j], j + i);
+                j++;
+            }
         }
-        System.out.println();
+        return values;
     }
 
 }
